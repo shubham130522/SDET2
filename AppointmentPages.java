@@ -158,3 +158,128 @@ public class appointment_Pages {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+// 1. Login to HealthApp by valid credential (Example Only)
+public boolean loginToHealthAppByGivenValidCredential(Map<String, String> loginData) {
+    try {
+        driver.findElement(By.id("username")).sendKeys(loginData.get("username"));
+        driver.findElement(By.id("password")).sendKeys(loginData.get("password"));
+        driver.findElement(By.id("login-btn")).click();
+        // Optional: Check if landed on dashboard/home
+        return true;
+    } catch(Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+// 2. Verify Home Page Title and/or URL
+public String verifyURLOFThePage() {
+    return driver.getCurrentUrl();
+}
+
+// 3. Scroll to bottom and verify field (e.g., Care of Person Contact)
+public boolean scrollToBottomOrVerifyFieldAndHighlight() {
+    try {
+        WebElement el = driver.findElement(By.id("care-person-contact"));
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", el);
+        // highlight
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].style.border='2px solid orange'", el);
+        return el.isDisplayed() && el.isEnabled();
+    } catch(Exception e) {
+        return false;
+    }
+}
+
+// 4. Placeholder name for textbox
+public String verifyPlaceholderNameOfTextbox() {
+    try {
+        return driver.findElement(By.id("care-person-contact")).getAttribute("placeholder");
+    } catch(Exception e) {
+        return null;
+    }
+}
+
+// 5. Verify Textbox Present and Validate Entered Value
+public String verifyTextboxIsPresentAndValidateEnteredValue(Map<String, String> expectedData) {
+    try {
+        String fieldVal = driver.findElement(By.id(expectedData.get("textboxId"))).getAttribute("value");
+        return fieldVal;
+    } catch(Exception e) {
+        return null;
+    }
+}
+
+// 6. Verify Success Notification Popup Message (after adding referral etc.)
+public String verifySuccessNotificationPopupMessage(Map<String, String> expectedData) {
+    try {
+        // Click if flow suggests
+        driver.findElement(By.id("add-btn")).click();
+        WebElement popup = driver.findElement(By.className("notification-success"));
+        if(popup.isDisplayed()) {
+            return popup.getText();
+        }
+    } catch(Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
+// 7. Create Appointment with Authorization (API)
+public CustomResponse createAppointmentWithAuth(String endpoint, String requestBody) {
+    AppointmentRequests api = new AppointmentRequests(YOUR_BEARER_TOKEN, YOUR_BASE_URL);
+    io.restassured.response.Response response = api.createAppointmentWithAuth(endpoint, requestBody);
+    CustomResponse cr = new CustomResponse();
+    cr.setResponse(response);
+    cr.setStatusCode(response.getStatusCode());
+    // Set other fields as per your CustomResponse class definition
+    return cr;
+}
+
+// 8. Cancel Appointment with Authorization (API)
+public CustomResponse cancelAppointmentWithAuth(String endpoint, Object requestBody) {
+    AppointmentRequests api = new AppointmentRequests(YOUR_BEARER_TOKEN, YOUR_BASE_URL);
+    io.restassured.response.Response response = api.cancelAppointmentWithAuth(endpoint, requestBody);
+    CustomResponse cr = new CustomResponse();
+    cr.setResponse(response);
+    cr.setStatusCode(response.getStatusCode());
+    return cr;
+}
+
+// 9. Search Patient with Authorization
+public CustomResponse searchPatientWithAuth(String endpoint, Object requestBody) {
+    AppointmentRequests api = new AppointmentRequests(YOUR_BEARER_TOKEN, YOUR_BASE_URL);
+    io.restassured.response.Response response = api.searchPatientWithAuth(endpoint, requestBody);
+    CustomResponse cr = new CustomResponse();
+    cr.setResponse(response);
+    cr.setStatusCode(response.getStatusCode());
+    return cr;
+}
+
+// 10. Booking List with Auth in Range
+public CustomResponse bookingListWithAuthInRange(String endpoint, Object requestBody) {
+    AppointmentRequests api = new AppointmentRequests(YOUR_BEARER_TOKEN, YOUR_BASE_URL);
+    io.restassured.response.Response response = api.bookingListWithAuthInRange(endpoint, requestBody);
+    CustomResponse cr = new CustomResponse();
+    cr.setResponse(response);
+    cr.setStatusCode(response.getStatusCode());
+    return cr;
+}
+
+// 11. Main Store Details with Auth
+public CustomResponse mainStoreDetailsWithAuth(String endpoint, Object requestBody) {
+    AppointmentRequests api = new AppointmentRequests(YOUR_BEARER_TOKEN, YOUR_BASE_URL);
+    io.restassured.response.Response response = api.mainStoreDetailsWithAuth(endpoint, requestBody);
+    CustomResponse cr = new CustomResponse();
+    cr.setResponse(response);
+    cr.setStatusCode(response.getStatusCode());
+    return cr;
+}
