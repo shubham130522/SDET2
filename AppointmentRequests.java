@@ -14,61 +14,84 @@ public class AppointmentRequests {
         this.baseUrl = baseUrl;
     }
 
-    // 1. Create Appointment (POST)
-    public Response createAppointment(Map<String, Object> body) {
+    // 1. Retrieve List of Pharmacy Stores
+    public Response pharmacyStoresWithAuth(String endpoint, Object body) {
         return given()
             .header("Authorization", "Bearer " + bearerToken)
             .contentType("application/json")
             .body(body)
-            .post(baseUrl + "/api/Appointment/AddAppointment");
+            .get(baseUrl + endpoint);
     }
 
-    // 2. Cancel Appointment with Authorization (PUT)
-    public Response cancelAppointmentWithAuth(String appointmentId) {
+    // 2. Retrieve Main Store Details
+    public Response mainStoreDetailsWithAuth(String endpoint, Object body) {
         return given()
             .header("Authorization", "Bearer " + bearerToken)
             .contentType("application/json")
-            .put(baseUrl + "/api/Appointment/AppointmentStatus?appointmentId=" + appointmentId + "&status=cancelled");
+            .body(body)
+            .get(baseUrl + endpoint);
     }
 
-    // 3. Search Patient with Authorization (GET)
-    public Response searchPatientWithAuth(String searchStr) {
+    // 3. Retrieve a List of Appointments for a Specified Performer in Range
+    public Response bookingListWithAuthInRange(String endpoint, Object body) {
         return given()
             .header("Authorization", "Bearer " + bearerToken)
-            .get(baseUrl + "/api/Patient/SearchRegisteredPatient?search=" + searchStr);
+            .contentType("application/json")
+            .body(body)
+            .get(baseUrl + endpoint);
     }
 
-    // 4. Get Appointments for a Performer in a Date Range (GET)
-    public Response getAppointmentsForPerformer(String performerId, String fromDate, String toDate) {
-        String endpoint = String.format(
-            "%s/api/Appointment/Appointments?FromDate=%s&ToDate=%s&performerId=%s&status=new",
-            baseUrl, fromDate, toDate, performerId
-        );
+    // 4. Create Appointment With Authorization
+    public Response createAppointmentWithAuth(String endpoint, String jsonBody) {
         return given()
             .header("Authorization", "Bearer " + bearerToken)
-            .get(endpoint);
+            .contentType("application/json")
+            .body(jsonBody)
+            .post(baseUrl + endpoint);
     }
 
-    // 5. Get Main Store Details (GET)
-    public Response getMainStoreDetails() {
+    // 5. Cancel Appointment With Authorization
+    public Response cancelAppointmentWithAuth(String endpoint, Object body) {
         return given()
             .header("Authorization", "Bearer " + bearerToken)
-            .get(baseUrl + "/api/PharmacySettings/MainStore");
+            .contentType("application/json")
+            .body(body)
+            .put(baseUrl + endpoint);
     }
 
-    // 6. Get Pharmacy Stores List (GET)
-    public Response getPharmacyStores() {
+    // 6. Search for a Patient With Authorization
+    public Response searchPatientWithAuth(String endpoint, Object body) {
         return given()
             .header("Authorization", "Bearer " + bearerToken)
-            .get(baseUrl + "/api/Dispensary/PharmacyStores");
+            .contentType("application/json")
+            .body(body)
+            .get(baseUrl + endpoint);
     }
 
-    // 7. Get All Appointments in the Appointment List API (GET) -- Example
-    public Response getAllAppointments() {
+    // --- Helper Method for Generic Authorized GET (Optional) ---
+    public Response genericGetRequest(String endpoint, Object body) {
         return given()
             .header("Authorization", "Bearer " + bearerToken)
-            .get(baseUrl + "/api/Appointment/Appointments");
+            .contentType("application/json")
+            .body(body)
+            .get(baseUrl + endpoint);
     }
 
-    // ADD MORE methods as needed for any other API endpoints directly used by your tests
+    // --- Helper Method for Generic Authorized POST (Optional) ---
+    public Response genericPostRequest(String endpoint, String jsonBody) {
+        return given()
+            .header("Authorization", "Bearer " + bearerToken)
+            .contentType("application/json")
+            .body(jsonBody)
+            .post(baseUrl + endpoint);
+    }
+
+    // --- Helper Method for Generic Authorized PUT (Optional) ---
+    public Response genericPutRequest(String endpoint, String jsonBody) {
+        return given()
+            .header("Authorization", "Bearer " + bearerToken)
+            .contentType("application/json")
+            .body(jsonBody)
+            .put(baseUrl + endpoint);
+    }
 }
