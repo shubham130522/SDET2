@@ -1,5 +1,35 @@
 package pages;
 
+
+
+import apiRequests.AppointmentRequests;
+import io.restassured.response.Response;
+import pages.CustomResponse;
+
+public CustomResponse PharmacyStoresWithAuth(String endpoint, Object requestBody) {
+    // You must specify how to get the token and base URL, depending on your config.
+    String BEARER_TOKEN = "your_actual_bearer_token";   // Replace with config if needed
+    String BASE_URL = "https://healthapp.yaksha.com";   // Replace with config if needed
+
+    AppointmentRequests api = new AppointmentRequests(BEARER_TOKEN, BASE_URL);
+    Response response = api.pharmacyStoresWithAuth(endpoint, requestBody);
+    CustomResponse cr = new CustomResponse();
+
+    cr.setResponse(response);
+    cr.setStatusCode(response.getStatusCode());
+    // If you want to extract fields, assuming CustomResponse has these setters:
+    cr.setStatus(response.jsonPath().getString("Status"));
+    cr.setResults(response.jsonPath().getList("Results"));
+    cr.setCompleteResponseObject(response.asString());
+
+    return cr;
+}
+
+
+
+
+
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -283,3 +313,4 @@ public CustomResponse mainStoreDetailsWithAuth(String endpoint, Object requestBo
     cr.setStatusCode(response.getStatusCode());
     return cr;
 }
+
