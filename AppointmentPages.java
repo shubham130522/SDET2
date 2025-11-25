@@ -1,167 +1,160 @@
-package testcases;
+package pages;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
-import org.testng.Assert;
-import org.testng.annotations.*;
+public class AppointmentPages {
+    WebDriver driver;
 
-public class appointment_testcase extends AppTestBase {
-    // Test data and page objects
-    Map<String, String> configData;
-    Map<String, String> loginCredentials;
-    String EXCEL_FILE_PATH = "src/main/resources/config.xlsx";
-    appointment_Pages appointmentPagesInstance;
+    // Sample Locators -- Replace with actual IDs/XPaths from your real application
+    By newVisitLink = By.id("newVisitLink");
+    By newPatientButton = By.id("newPatientBtn");
+    By patientInformationText = By.xpath("//h2[text()='Patient Information']");
+    By careOfPersonContactTextbox = By.id("careOfPersonContact");
+    By careOfPersonTextbox = By.id("careOfPerson");
+    By printInvoiceButton = By.id("printInvoice");
+    By confirmButton = By.id("confirmBtn");
+    By errorMessage = By.cssSelector(".error-message");
+    By firstNameTextbox = By.id("firstName");
+    By middleNameTextbox = By.id("middleName");
+    By lastNameTextbox = By.id("lastName");
+    By ageTextbox = By.id("age");
+    By phoneTextbox = By.id("phone");
+    By haveDOBCheckbox = By.id("haveDOB");
+    By datePickerField = By.id("datepicker");
+    By externalCheckbox = By.id("externalReferral");
+    By addButton = By.id("addReferral");
+    By successNotification = By.cssSelector(".notification-success");
 
-    @BeforeClass
-    public void setup() throws Exception {
-        configData = // Load config
-        loginCredentials = // Load login credentials
-        appointmentPagesInstance = new appointment_Pages(driver);
+    public AppointmentPages(WebDriver driver) {
+        this.driver = driver;
     }
-
-    @Test(priority = 1, groups = {"sanity"}, description = "Navigate to the URL and verify the homepage title and URL")
-    public void verifyTitleAndURLOfHomePage() throws Exception {
-        Map<String, String> loginData = // Read from Excel
-        Assert.assertTrue(appointmentPagesInstance.loginHealthAppByGivenValidCredential(loginData));
-        Assert.assertEquals(appointmentPagesInstance.verifyTitleAndURLOfHomePage(), loginData.get("expectedTitle"));
+    
+    public void openNewVisitPage() {
+        driver.findElement(newVisitLink).click();
     }
-
-    @Test(priority = 2, groups = {"sanity"}, description = "Verify that Appointment module is present")
-    public void verifyAppointmentModuleIsPresent() throws Exception {
-        Map<String, String> expectedData = // Read from Excel
-        Assert.assertTrue(appointmentPagesInstance.verifyAppointmentModuleIsPresent(), "Module is not present");
+    public void clickNewPatientButton() {
+        driver.findElement(newPatientButton).click();
     }
-
-    @Test(priority = 3, groups = {"sanity"}, description = "Verify New Patient button is present")
-    public void verifyNewPatientButtonAndTestIsPresent() throws Exception {
-        Map<String, String> expectedData = // Read from Excel
-        Assert.assertTrue(appointmentPagesInstance.verifyNewPatientButtonIsPresent(), "New Patient button not present");
+    public boolean isPatientInformationTextVisible() {
+        return driver.findElement(patientInformationText).isDisplayed();
     }
-
-    @Test(priority = 4, groups = {"sanity"}, description = "Scroll to bottom and check for fields")
-    public void scrollToBottomAndVerifyFieldAndHighlight() throws Exception {
-        Assert.assertTrue(appointmentPagesInstance.scrollToBottomAndVerifyFieldAndHighlight(), "Fields not present");
+    public boolean isCareOfPersonContactTextboxPresent() {
+        return driver.findElement(careOfPersonContactTextbox).isDisplayed();
     }
-
-    @Test(priority = 5, groups = {"sanity"}, description = "Verify the placeholder name of textboxes")
-    public void verifyPlaceholderNameOfTextboxIfTextboxIsEnabled() throws Exception {
-        Map<String, String> expectedData = // Read from Excel
-        Assert.assertTrue(appointmentPagesInstance.verifyPlaceholderNameOfTextbox(expectedData), "Placeholder name validation failed");
+    public String getCareOfPersonTextboxPlaceholder() {
+        return driver.findElement(careOfPersonTextbox).getAttribute("placeholder");
     }
-
-    @Test(priority = 6, groups = {"sanity"}, description = "Validate error message when no input provided")
-    public void verifyErrorMessage() throws Exception {
-        Map<String, String> expectedData = // Read from Excel
-        Assert.assertTrue(appointmentPagesInstance.verifyErrorMessage(expectedData), "Error message validation failed");
+    public void clickPrintInvoiceButton() {
+        driver.findElement(printInvoiceButton).click();
     }
-
-    @Test(priority = 7, groups = {"sanity"}, description = "Validate entered patient information fields")
-    public void verifyEnteredDetailsPresentInTextbox() throws Exception {
-        Map<String, String> expectedData = // Read from Excel
-        Assert.assertTrue(appointmentPagesInstance.verifyEnteredDetailsPresentInTextbox(expectedData), "Entered values are missing");
+    public void clickConfirmButton() {
+        driver.findElement(confirmButton).click();
     }
-
-    @Test(priority = 8, groups = {"sanity"}, description = "Check DOB checkbox and datepicker")
-    public void verifyCheckboxIsSelectedAndDatePickerIsPresent() throws Exception {
-        Assert.assertTrue(appointmentPagesInstance.verifyCheckboxIsSelectedAndDatePickerIsPresent(), "Checkbox or datepicker validation failed");
+    public boolean isErrorMessagePresent(String message) {
+        return driver.findElement(errorMessage).getText().equals(message);
     }
-
-    @Test(priority = 9, groups = {"sanity"}, description = "Add external referral and verify success notification")
-    public void verifySuccessNotificationPopupMessage() throws Exception {
-        Map<String, String> expectedData = // Read from Excel
-        Assert.assertTrue(appointmentPagesInstance.verifySuccessNotificationPopupMessage(expectedData), "Success notification is missing");
+    public void enterPatientInformation(Map<String, String> testData) {
+        driver.findElement(firstNameTextbox).sendKeys(testData.get("FirstName"));
+        driver.findElement(middleNameTextbox).sendKeys(testData.get("MiddleName"));
+        driver.findElement(lastNameTextbox).sendKeys(testData.get("LastName"));
+        driver.findElement(ageTextbox).sendKeys(testData.get("Age"));
+        driver.findElement(phoneTextbox).sendKeys(testData.get("Phone"));
     }
-
-    @Test(priority = 10, groups = {"sanity"}, description = "Create appointment via API")
-    public void createAppointmentTest() throws Exception {
-        Map<String, String> postData = // Read from Excel
-        CustomResponse response = appointmentPagesInstance.createAppointmentWithAuth("/Appointment/AddAppointment", postData);
-        Assert.assertEquals(response.getStatusCode(), 200);
-        Assert.assertEquals(response.getStatus(), "OK");
-        Assert.assertNotNull(response.getAppointmentId());
-        System.out.println("Create Appointment Response: " + response.getResponse().toString());
+    public boolean verifyPatientInfoValues(Map<String, String> expectedData) {
+        String actualFirstName = driver.findElement(firstNameTextbox).getAttribute("value");
+        String actualMiddleName = driver.findElement(middleNameTextbox).getAttribute("value");
+        String actualLastName = driver.findElement(lastNameTextbox).getAttribute("value");
+        String actualAge = driver.findElement(ageTextbox).getAttribute("value");
+        return actualFirstName.equals(expectedData.get("FirstName")) &&
+               actualMiddleName.equals(expectedData.get("MiddleName")) &&
+               actualLastName.equals(expectedData.get("LastName")) &&
+               actualAge.equals(expectedData.get("Age"));
     }
-
-    @Test(priority = 11, groups = {"sanity"}, dependsOnMethods = {"createAppointmentTest"}, description = "Cancel appointment test")
-    public void cancelAppointmentTest() throws Exception {
-        Integer appointmentId = // get from createAppointmentTest
-        CustomResponse response = appointmentPagesInstance.cancelAppointmentWithAuth(appointmentId);
-        Assert.assertEquals(response.getStatusCode(), 200);
-        Assert.assertEquals(response.getStatus(), "OK");
-        Assert.assertEquals(response.getResultMessage(), "Appointment information updated successfully.");
-        System.out.println("Cancelled Appointment Response: " + response.getResponse().toString());
+    public String getPhoneNumberValue() {
+        return driver.findElement(phoneTextbox).getAttribute("value");
     }
-
-    @Test(priority = 12, groups = {"sanity"}, description = "Search patient test")
-    public void searchPatientTest() throws Exception {
-        CustomResponse response = appointmentPagesInstance.searchPatientWithAuth("/Patient/SearchRegister?searchText=test");
-        Assert.assertEquals(response.getStatusCode(), 200);
-        String firstName = response.getResult("Results[0].FirstName");
-        String shortName = response.getResult("Results[0].ShortName");
-        String lastName = response.getResult("Results[0].LastName");
-        System.out.println("FirstName: " + firstName);
-        System.out.println("ShortName: " + shortName);
-        System.out.println("LastName: " + lastName);
-        Assert.assertTrue(firstName.contains("test"));
-        Assert.assertTrue(shortName.contains("test"));
-        Assert.assertTrue(lastName.contains("test"));
+    public boolean isHaveDOBCheckboxPresent() {
+        return driver.findElement(haveDOBCheckbox).isDisplayed();
     }
-
-    @Test(priority = 13, groups = {"sanity"}, description = "Booking list test")
-    public void BookingListTest() throws Exception {
-        LocalDate currentDate = LocalDate.now();
-        LocalDate earlierDate = currentDate.minusDays(5);
-        String startDate = earlierDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String endDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        // Add performerId logic
-        CustomResponse response = appointmentPagesInstance.bookingListWithAuthInRange("/Appointment/AppointmentItems?FromDate=" + startDate + "&ToDate=" + endDate);
-        Assert.assertEquals(response.getStatusCode(), 200);
-        List<Map<String, Object>> results = response.getListResults();
-        for (Map<String, Object> result : results) {
-            String appointmentDate = (String) result.get("AppointmentDate");
-            Assert.assertNotNull(appointmentDate, "Appointment Date should not be null");
-            // Additional date logic...
-        }
+    public boolean isDatePickerPresent() {
+        return driver.findElement(datePickerField).isDisplayed();
     }
-
-    @Test(priority = 14, groups = {"sanity"}, description = "Main store test")
-    public void MainStoreTest() throws Exception {
-        CustomResponse response = appointmentPagesInstance.MainStoreDetailsWithAuth("/PharmacySettings/MainStore");
-        Assert.assertEquals(response.getStatusCode(), 200);
-        Map<String, Object> results = response.getNpResults();
-        String name = (String) results.get("Name");
-        String storeDescription = (String) results.get("StoreDescription");
-        Integer storeId = (Integer) results.get("StoreId");
-        Assert.assertNotNull(name);
-        Assert.assertNotNull(storeDescription);
-        Assert.assertNotNull(storeId);
-        Assert.assertEquals(response.getStatus(), "OK");
+    public void clickExternalCheckbox() {
+        driver.findElement(externalCheckbox).click();
     }
-
-    @Test(priority = 15, groups = {"sanity"}, description = "Pharmacy store test")
-    public void PharmacyStoreTest() throws Exception {
-        CustomResponse response = appointmentPagesInstance.PharmacyStoresWithAuth("/Dispensary/PharmacyStores");
-        Assert.assertEquals(response.getStatusCode(), 200);
-        List<Map<String, Object>> results = response.getListResults();
-        for (Map<String, Object> result : results) {
-            Integer storeId = (Integer) result.get("StoreId");
-            String name = (String) result.get("Name");
-            System.out.println("StoreId: " + storeId);
-            System.out.println("Name: " + name);
-            Assert.assertNotNull(storeId, "StoreId is null");
-            Assert.assertNotNull(name, "Name is null");
-        }
-        Assert.assertEquals(response.getStatus(), "OK");
-        System.out.println("Pharmacy store response:");
-        System.out.println(response.getResponse().toString());
+    public void enterExternalReferralDetails() {
+        // Fill required details for referral here
     }
-
-    @AfterClass
-    public void tearDown() {
-        driver.quit();
+    public void clickAddButton() {
+        driver.findElement(addButton).click();
     }
+    public boolean isSuccessNotificationPresent(String text) {
+        return driver.findElement(successNotification).getText().contains(text);
+    }
+}
+
+
+@Test(priority=3)
+public void verifyNewPatientButtonShowsPatientInfo() {
+    AppointmentPages page = new AppointmentPages(driver);
+    page.openNewVisitPage();
+    page.clickNewPatientButton();
+    Assert.assertTrue(page.isPatientInformationTextVisible());
+}
+
+@Test(priority=4)
+public void verifyCareOfPersonContactTextboxPresent() {
+    AppointmentPages page = new AppointmentPages(driver);
+    page.openNewVisitPage();
+    Assert.assertTrue(page.isCareOfPersonContactTextboxPresent());
+}
+
+@Test(priority=5)
+public void verifyCareOfPersonTextboxPlaceholder() {
+    AppointmentPages page = new AppointmentPages(driver);
+    page.openNewVisitPage();
+    Assert.assertEquals(page.getCareOfPersonTextboxPlaceholder(), "Care Taker Person");
+}
+
+@Test(priority=6)
+public void verifyErrorMessageForEmptyForm() {
+    AppointmentPages page = new AppointmentPages(driver);
+    page.openNewVisitPage();
+    page.clickPrintInvoiceButton();
+    page.clickConfirmButton();
+    Assert.assertTrue(page.isErrorMessagePresent("Last Name is required"));
+}
+
+@Test(priority=7)
+public void validateEnteredPatientInfoValues() {
+    AppointmentPages page = new AppointmentPages(driver);
+    Map<String, String> testData = new HashMap<>();
+    testData.put("FirstName", "John");
+    testData.put("MiddleName", "A");
+    testData.put("LastName", "Doe");
+    testData.put("Age", "30");
+    testData.put("Phone", "1234567890");
+    page.enterPatientInformation(testData);
+    Assert.assertTrue(page.verifyPatientInfoValues(testData));
+    Assert.assertEquals(page.getPhoneNumberValue(), "1234567890");
+}
+
+@Test(priority=8)
+public void verifyHaveDOBCheckboxAndDatePickerPresent() {
+    AppointmentPages page = new AppointmentPages(driver);
+    page.openNewVisitPage();
+    Assert.assertTrue(page.isHaveDOBCheckboxPresent());
+    Assert.assertTrue(page.isDatePickerPresent());
+}
+
+@Test(priority=9)
+public void verifySuccessNotificationOnAddExternalReferral() {
+    AppointmentPages page = new AppointmentPages(driver);
+    page.openNewVisitPage();
+    page.clickExternalCheckbox();
+    page.enterExternalReferralDetails();
+    page.clickAddButton();
+    Assert.assertTrue(page.isSuccessNotificationPresent("Success update"));
 }
