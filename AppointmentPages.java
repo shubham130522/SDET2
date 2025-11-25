@@ -158,3 +158,99 @@ public void verifySuccessNotificationOnAddExternalReferral() {
     page.clickAddButton();
     Assert.assertTrue(page.isSuccessNotificationPresent("Success update"));
 }
+
+
+
+
+
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+import java.util.Map;
+
+public class appointment_Pages {
+
+    WebDriver driver;
+
+    // Sample locators (update with your actual element identifiers)
+    By buttonAtBottom = By.id("bottomButton");
+    By appointmentModule = By.id("appointmentModule");
+    By newPatientButton = By.id("newPatientBtn");
+    By patientInfoText = By.xpath("//h2[text()='Patient Information']");
+    By loginUsername = By.id("username");
+    By loginPassword = By.id("password");
+    By loginButton = By.id("loginBtn");
+    By homePageTitle = By.tagName("title");
+
+    public appointment_Pages(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // 1. Scroll and highlight field at bottom
+    public boolean scrollToBottomOrVerifyFieldAndHighlight() {
+        try {
+            driver.findElement(buttonAtBottom).click();
+            // Use JavaScript to highlight if needed
+            // JavascriptExecutor js = (JavascriptExecutor) driver;
+            // js.executeScript("arguments[0].style.border='3px solid red'", driver.findElement(buttonAtBottom));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // 2. Verify button and Patient Information text present
+    public String verifyButtonAndTextIsPresent() {
+        try {
+            driver.findElement(newPatientButton).click();
+            return driver.findElement(patientInfoText).getText();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 3. Verify appointment module present
+    public String verifyAppointmentModuleIsPresent() {
+        try {
+            if (driver.findElement(appointmentModule).isDisplayed()) {
+                return driver.findElement(appointmentModule).getText();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    // 4. Login to health app with valid credentials
+    public boolean loginToHealthAppByGivenValidCredential(Map<String, String> loginData) {
+        try {
+            driver.findElement(loginUsername).sendKeys(loginData.get("username"));
+            driver.findElement(loginPassword).sendKeys(loginData.get("password"));
+            driver.findElement(loginButton).click();
+            // Wait for login to complete (add explicit wait as needed)
+            return true; // Return false if login fails
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // 5. Get homepage title after login
+    public String verifyTitleAndURLOfTheHomePage() {
+        try {
+            return driver.getTitle();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 6. Get homepage URL after login
+    public String verifyURLOfThePage() {
+        try {
+            return driver.getCurrentUrl();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
