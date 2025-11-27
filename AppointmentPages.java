@@ -254,3 +254,191 @@ public class appointment_Pages {
         }
     }
 }
+
+
+
+
+// In appointment_Pages.java
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import io.restassured.http.ContentType;
+
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+
+import restConfig.ConfigManager;
+
+public class appointment_Pages {
+
+    // ... your existing UI code and getCurrentUrl() etc.
+
+    private String getBaseUrl() {
+        return ConfigManager.getBaseUrl();    // implement in ConfigManager
+    }
+
+    private String getBearerToken() {
+        return ConfigManager.getBearerToken(); // implement in ConfigManager
+    }
+
+    private CustomResponse buildCustomResponse(Response resp) {
+        CustomResponse cr = new CustomResponse();
+        cr.setResponse(resp);
+        cr.setStatusCode(resp.getStatusCode());
+        cr.setStatus(resp.jsonPath().getString("status"));   // change key if your JSON uses different field
+        // assuming result is a list of maps under key "result"
+        List<Map<String, Object>> list = resp.jsonPath().getList("result");
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("result", list);
+        cr.setResults(resultMap);
+        return cr;
+    }
+
+    // 10. createAppointmentWithAuth(String endpoint, String requestBody)
+    public CustomResponse createAppointmentWithAuth(String endpoint, String requestBody) {
+        String url = getBaseUrl() + endpoint;        // endpoint like "/Appointment/AddAppointment"
+
+        Response resp = RestAssured
+                .given()
+                    .baseUri(url)
+                    .header("Authorization", "Bearer " + getBearerToken())
+                    .contentType(ContentType.JSON)
+                    .body(requestBody)
+                .when()
+                    .post()
+                .then()
+                    .extract().response();
+
+        // Optionally basic assertion
+        if (resp.getStatusCode() != 200) {
+            throw new RuntimeException("createAppointmentWithAuth failed, status: " + resp.getStatusCode());
+        }
+
+        return buildCustomResponse(resp);
+    }
+
+    // 11. cancelAppointmentWithAuth(String endpoint, Object requestObj)
+    //   endpoint example from doc:
+    //   "/Appointment/AppointmentStatus?appointmentId=" + apptId + "&status=cancelled"
+    public CustomResponse cancelAppointmentWithAuth(String endpoint, Object requestObj) {
+        String url = getBaseUrl() + endpoint;
+
+        Response resp = RestAssured
+                .given()
+                    .baseUri(url)
+                    .header("Authorization", "Bearer " + getBearerToken())
+                    .contentType(ContentType.JSON)
+                    .body(requestObj)           // if body not required, remove this
+                .when()
+                    .put()
+                .then()
+                    .extract().response();
+
+        if (resp.getStatusCode() != 200) {
+            throw new RuntimeException("cancelAppointmentWithAuth failed, status: " + resp.getStatusCode());
+        }
+
+        return buildCustomResponse(resp);
+    }
+
+    // 12. searchPatientWithAuth(String endpoint, Object requestObj)
+    // endpoint like "/Patient/SearchRegisteredPatient?searchText=<text>"
+    public CustomResponse searchPatientWithAuth(String endpoint, Object requestObj) {
+        String url = getBaseUrl() + endpoint;
+
+        Response resp = RestAssured
+                .given()
+                    .baseUri(url)
+                    .header("Authorization", "Bearer " + getBearerToken())
+                    .contentType(ContentType.JSON)
+                    .body(requestObj)   // if GET has no body, remove this and change to .get()
+                .when()
+                    .get()
+                .then()
+                    .extract().response();
+
+        if (resp.getStatusCode() != 200) {
+            throw new RuntimeException("searchPatientWithAuth failed, status: " + resp.getStatusCode());
+        }
+
+        return buildCustomResponse(resp);
+    }
+
+    // 13. bookingListWithAuthInRange(String endpoint, Object requestObj)
+    // endpoint sample: "/Appointment/Appointments?FromDate=...&ToDate=...&performerId=...&status=new"
+    public CustomResponse bookingListWithAuthInRange(String endpoint, Object requestObj) {
+        String url = getBaseUrl() + endpoint;
+
+        Response resp = RestAssured
+                .given()
+                    .baseUri(url)
+                    .header("Authorization", "Bearer " + getBearerToken())
+                    .contentType(ContentType.JSON)
+                    .body(requestObj)   // remove if GET has no body
+                .when()
+                    .get()
+                .then()
+                    .extract().response();
+
+        if (resp.getStatusCode() != 200) {
+            throw new RuntimeException("bookingListWithAuthInRange failed, status: " + resp.getStatusCode());
+        }
+
+        return buildCustomResponse(resp);
+    }
+
+    // 14. MainStoreDetailsWithAuth(String endpoint, Object requestObj)
+    // endpoint: "/PharmacySettings/MainStore"
+    public CustomResponse MainStoreDetailsWithAuth(String endpoint, Object requestObj) {
+        String url = getBaseUrl() + endpoint;
+
+        Response resp = RestAssured
+                .given()
+                    .baseUri(url)
+                    .header("Authorization", "Bearer " + getBearerToken())
+                    .contentType(ContentType.JSON)
+                    .body(requestObj)  // likely no body needed; remove if not
+                .when()
+                    .get()
+                .then()
+                    .extract().response();
+
+        if (resp.getStatusCode() != 200) {
+            throw new RuntimeException("MainStoreDetailsWithAuth failed, status: " + resp.getStatusCode());
+        }
+
+        CustomResponse cr = buildCustomResponse(resp);
+        // additional checks as per doc: Name, storeDesc, storeId should not be null
+        // you can assert fields here based on your JSON structure
+        return cr;
+    }
+
+    // 15. PharmacyStoresWithAuth(String endpoint, Object requestObj)
+    // endpoint: "/Dispensary/PharmacyStores"
+    public CustomResponse PharmacyStoresWithAuth(String endpoint, Object requestObj) {
+        String url = getBaseUrl() + endpoint;
+
+        Response resp = RestAssured
+                .given()
+                    .baseUri(url)
+                    .header("Authorization", "Bearer " + getBearerToken())
+                    .contentType(ContentType.JSON)
+                    .body(requestObj)  // remove if GET without body
+                .when()
+                    .get()
+                .then()
+                    .extract().response();
+
+        if (resp.getStatusCode() != 200) {
+            throw new RuntimeException("PharmacyStoresWithAuth failed, status: " + resp.getStatusCode());
+        }
+
+        CustomResponse cr = buildCustomResponse(resp);
+        // as per doc, StoreId and Name should not be null; add checks from JSON
+        return cr;
+    }
+}
+
+
+
