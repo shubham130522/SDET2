@@ -1,5 +1,25 @@
 package pages;
 
+
+// restConfig/ConfigManager.java
+public class ConfigManager {
+    public static String getBaseUrl() {
+        // read from config.properties
+        return PropertiesFileReader.get("baseUrl");
+    }
+
+    public static String getBearerToken() {
+        return PropertiesFileReader.get("bearerToken");
+    }
+}
+
+
+
+
+
+
+
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -439,6 +459,7 @@ public class appointment_Pages {
         return cr;
     }
 }
+
 
 
 
